@@ -5,9 +5,16 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE"], allowedHeaders: "*", credentials: true } });
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: "*",
+        credentials: true
+    }
+});
 
-app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"], allowedHeaders: "*", credentials: true }));
+app.use(cors({origin: "*", methods: ["GET", "POST", "PUT", "DELETE"], allowedHeaders: "*", credentials: true}));
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -16,9 +23,9 @@ let positions = [];
 
 /**
  * Handles events for a newly connected socket client.
- * 
+ *
  * This function manages client connections and communication between the server and connected clients. It performs the following actions:
- * 
+ *
  * 1. Adds the connected client's socket ID and initializes their data in `connectedClients`.
  * 2. Emits the initial data to the connected client, including the total number of users and their positions.
  * 3. Listens for updates to the client's location data via the `updateLocation` event:
@@ -28,7 +35,7 @@ let positions = [];
  * 4. Handles disconnections through the `disconnect` event:
  *    - Removes the client from `connectedClients`.
  *    - Updates the list of positions and broadcasts the updates to all remaining clients.
- * 
+ *
  * Events:
  * - `initialData`: Emitted to the newly connected client with the following data:
  *   - `userCount` (number): The total number of connected clients.
@@ -40,10 +47,10 @@ let positions = [];
  *   - `positions` (Array): The updated list of client positions.
  */
 io.on('connection', (socket) => {
-    connectedClients[socket.id] = { id: socket.id, position: null };
+    connectedClients[socket.id] = {id: socket.id, position: null};
 
     console.log(Object.keys(connectedClients).length);
-    socket.emit('initialData', { userCount: Object.keys(connectedClients).length, positions });
+    socket.emit('initialData', {userCount: Object.keys(connectedClients).length, positions});
     console.log('emmited data');
 
     socket.on('updateLocation', (position) => {
@@ -53,7 +60,7 @@ io.on('connection', (socket) => {
 
         positions = Object.values(connectedClients).map(client => client.position).filter(pos => pos !== null);
 
-        io.emit('updateData', { userCount: Object.keys(connectedClients).length, positions });
+        io.emit('updateData', {userCount: Object.keys(connectedClients).length, positions});
         console.log('update data')
     });
 
@@ -81,21 +88,21 @@ io.on('connection', (socket) => {
 
         positions = Object.values(connectedClients).map(client => client.position).filter(pos => pos !== null);
 
-        io.emit('updateData', { userCount: Object.keys(connectedClients).length, positions });
+        io.emit('updateData', {userCount: Object.keys(connectedClients).length, positions});
     });
 });
 
 
 app.get('/remove-websockets', (req, res) => {
-  /**
-   * Disconnects the provided socket forcefully from the server.
-   *
-   * @param {Object} socket - The socket instance to disconnect.
-   */
-  io.of('/').sockets.forEach((socket) => {
-    socket.disconnect(true);
-  });
-  res.status(200).send('All WebSocket instances removed');
+    /**
+     * Disconnects the provided socket forcefully from the server.
+     *
+     * @param {Object} socket - The socket instance to disconnect.
+     */
+    io.of('/').sockets.forEach((socket) => {
+        socket.disconnect(true);
+    });
+    res.status(200).send('All WebSocket instances removed');
 });
 
 const PORT = 6006;
