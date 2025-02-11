@@ -50,6 +50,14 @@ io.on('connection', (socket) => {
     });
 });
 
+
+app.get('/remove-websockets', (req, res) => {
+  io.of('/').sockets.forEach((socket) => {
+    socket.disconnect(true);
+  });
+  res.status(200).send('All WebSocket instances removed');
+});
+
 const PORT = 6006;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
