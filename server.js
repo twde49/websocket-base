@@ -20,8 +20,10 @@ io.on('connection', (socket) => {
     // Add client to connectedClients
     connectedClients[socket.id] = { id: socket.id, position: null };
 
+    console.log(Object.keys(connectedClients).length);
     // Emit the current number of users and positions to the newly connected client
     socket.emit('initialData', { userCount: Object.keys(connectedClients).length, positions });
+    console.log('emmited data');
 
     // Listen for location updates from the client
     socket.on('updateLocation', (position) => {
