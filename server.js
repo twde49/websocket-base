@@ -17,26 +17,22 @@ let positions = [];
 io.on('connection', (socket) => {
     console.log('New client connected');
 
-    // Add client to connectedClients
     connectedClients[socket.id] = { id: socket.id, position: null };
 
     console.log(Object.keys(connectedClients).length);
-    // Emit the current number of users and positions to the newly connected client
     socket.emit('initialData', { userCount: Object.keys(connectedClients).length, positions });
     console.log('emmited data');
 
-    // Listen for location updates from the client
+    // Listen on the new position from the webapp
     socket.on('updateLocation', (position) => {
         console.log(`Location from ${socket.id}:`, position);
 
-        // Update the position of the client
         connectedClients[socket.id].position = position;
 
-        // Update the positions array
         positions = Object.values(connectedClients).map(client => client.position).filter(pos => pos !== null);
 
-        // Broadcast updated positions and user count
         io.emit('updateData', { userCount: Object.keys(connectedClients).length, positions });
+        console.log('update data')
     });
 
     // Handle client disconnection
